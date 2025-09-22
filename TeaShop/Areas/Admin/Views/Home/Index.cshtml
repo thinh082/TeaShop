@@ -1,0 +1,251 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+@{
+    // Đảm bảo ViewBag.Top4 đã được truyền vào từ controller
+    var top4 = Html.Raw(ViewBag.Top4);
+    var tonkhothap = Html.Raw(ViewBag.TonKhoThap);
+    var doanhthu = Html.Raw(ViewBag.DoanhThu);
+    var soluongchenhlech = Html.Raw(ViewBag.soluongchenhlech);
+    var top4spnhap = Html.Raw(ViewBag.top4spnhap);
+}
+<div class="page-wrapper">
+    <div class="container-fluid">
+        <!-- Phần breadcrumb -->
+        <div class="row page-titles">
+            <div class="col-md-5 col-8 align-self-center">
+                <h3 class="text-themecolor">Dashboard</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Giao diện thống kê biểu đồ -->
+        <div class="row">
+
+            <div class="row">
+
+                <!-- Cảnh báo tồn kho -->
+                <div class="col-lg-6 col-md-12 mb-3">
+                    <div class="card p-3">
+                        <div class="card-body">
+                            <h6 class="card-title mb-2">Cảnh Báo Tồn Kho Thấp</h6>
+                            <canvas id="revenueChart" style="max-height: 400px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top sản phẩm -->
+                <div class="col-lg-6 col-md-12 mb-3">
+                    <div class="card p-3">
+                        <div class="card-body">
+                            <h6 class="card-title mb-1">Top Sản Phẩm</h6>
+                            <p class="text-muted small mb-2">Lượt xem nhiều nhất</p>
+                            <canvas id="topProductsChart" style="max-height: 400px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doanh thu 4 tháng -->
+                <div class="col-lg-12 col-md-12 mb-3">
+                    <div class="card p-3">
+                        <div class="card-body">
+                            <h6 class="card-title mb-1">Doanh Thu 4 Tháng Gần Đây</h6>
+                            <p class="text-muted small mb-2">Tổng doanh thu các tháng</p>
+                            <canvas id="monthlyRevenueChart" style="max-height: 450px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- Số Lượng chênh lệch -->
+                <div class="col-lg-6 col-md-12 mb-3">
+                    <div class="card p-3">
+                        <div class="card-body">
+                            <h6 class="card-title mb-2">Chênh lệch số lượng sản phẩm</h6>
+                            <canvas id="SoLuongChart" style="max-height: 400px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 sản phẩm được nhiều nhất -->
+                <div class="col-lg-6 col-md-12 mb-3">
+                    <div class="card p-3">
+                        <div class="card-body">
+                            <h6 class="card-title mb-1">Top 4 sản phẩm được nhập về nhiều nhất</h6>
+                            <canvas id="Top4SPNhapChart" style="max-height: 400px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Biểu đồ doanh thu
+            var tonkhoData = JSON.parse('@tonkhothap');
+            const labeltk = tonkhoData.map(item=>item.TenSp);
+            const datatk = tonkhoData.map(item=>item.SoLuong);
+            const revenueCtx = document.getElementById('revenueChart');
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: labeltk,
+                    datasets: [{
+                        label: 'Cảnh bảo tồn kho thấp',
+                        data: datatk,
+                        borderColor: 'rgba(255,100, 100, 1)',
+                        backgroundColor: 'rgba(245, 245, 220,1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Parse ViewBag.Top4 to JavaScript object
+            var top4Data = JSON.parse('@top4'); 
+
+            // Tạo mảng labels và data từ top4Data
+            const labels = top4Data.map(item => item.MaSp); // Sử dụng MaSp làm nhãn
+            const data = top4Data.map(item => item.LuotXem); // Sử dụng LuotXem làm dữ liệu
+            // Biểu đồ top sản phẩm
+            const topProductsCtx = document.getElementById('topProductsChart');
+            new Chart(topProductsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            'rgba(33, 150, 243, 0.7)',
+                            'rgba(0, 200, 83, 0.7)',
+                            'rgba(255, 193, 7, 0.7)',
+                            'rgba(233, 30, 99, 0.7)'
+                        ]
+                    }]
+                }
+            });
+            // Biểu đồ doanh thu theo tháng
+            var doanhthuData = JSON.parse('@doanhthu');
+            const labeldt = doanhthuData.map(item=>item.Thang);
+            const datadt = doanhthuData.map(item=>item.DoanhThus);
+            var monthlyRevenueData = {
+                labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                        'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+                revenues: [12000000, 19000000, 15000000, 18000000, 21000000, 22000000,
+                          25000000, 23000000, 20000000, 18000000, 21000000, 24000000]
+            };
+
+            // Nếu bạn có dữ liệu từ server, có thể sử dụng như sau:
+
+            const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart');
+            new Chart(monthlyRevenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: labeldt,
+                    datasets: [{
+                        label: 'Doanh thu (VND)',
+                        data: datadt,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    // Format số tiền với dấu phân cách
+                                    return value.toLocaleString('vi-VN') + ' đ';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    // Format tooltip hiển thị số tiền
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.raw.toLocaleString('vi-VN') + ' đ';
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            // Parse ViewBag.Top4 to JavaScript object
+            var soluongData = JSON.parse('@soluongchenhlech');
+
+            // Tạo mảng labels và data từ top4Data
+            const labelsl = soluongData.map(item => item.MaSp); // Sử dụng MaSp làm nhãn
+            const datasl = soluongData.map(item => item.ChenhLech); // Sử dụng LuotXem làm dữ liệu
+            // Biểu đồ top sản phẩm
+            const SoLuongCtx = document.getElementById('SoLuongChart');
+            new Chart(SoLuongCtx, {
+                type: 'bar',
+                data: {
+                    labels: labelsl,
+                    datasets: [{
+                        label: 'Chênh lệch số lượng sản phẩm trong kho',
+                        data: datasl,
+                        backgroundColor: [
+                                    'rgba(156, 39, 176, 0.7)',  // Tím
+        'rgba(255, 87, 34, 0.7)',   // Cam đậm
+        'rgba(3, 169, 244, 0.7)',   // Xanh biển sáng
+        'rgba(139, 195, 74, 0.7)'   // Xanh lá sáng
+
+                        ]
+                    }]
+                }
+            });
+             // Parse ViewBag.Top4 to JavaScript object
+            var top4spnhapdata = JSON.parse('@top4spnhap');
+
+            // Tạo mảng labels và data từ top4Data
+            const labelspnhap = top4spnhapdata.map(item => item.MaSp); // Sử dụng MaSp làm nhãn
+            const dataspnhap = top4spnhapdata.map(item => item.SoLuongNhap); // Sử dụng LuotXem làm dữ liệu
+            // Biểu đồ top sản phẩm
+            const Top4SPNhapChartCtx = document.getElementById('Top4SPNhapChart');
+            new Chart(Top4SPNhapChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: labelsl,
+                    datasets: [{
+                        label: 'Chênh lệch số lượng sản phẩm trong kho',
+                        data: datasl,
+                        backgroundColor: [
+                                    'rgba(255, 99, 132, 0.7)',   // Hồng đỏ
+        'rgba(0, 188, 212, 0.7)',    // Xanh ngọc
+        'rgba(255, 152, 0, 0.7)',    // Cam sáng
+        'rgba(121, 85, 72, 0.7)',    // Nâu đất
+                        ]
+                    }]
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,135 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+@model List<ChiTietKiemKe>
+
+<div class="page-wrapper">
+    <div class="container-fluid">
+        <div class="row page-titles">
+            <div class="col-md-5 col-8 align-self-center">
+                <h3 class="text-themecolor">Quản lý kiểm kê kho</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-block">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="card-title">Chi Tiết Kiểm Kê</h4>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#themKiemKeModal">
+                                <i class="fa fa-plus"></i> Thêm Kiểm Kê
+                            </button>
+                        </div>
+
+                        <!-- Modal Thêm -->
+                        <div class="modal fade" id="themKiemKeModal" tabindex="-1" role="dialog" aria-labelledby="themKiemKeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <form action="/Admin/ChiTietKemKe/ThemCTKK" method="post">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Thêm Chi Tiết Kiểm Kê</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span>&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Mã Kiểm Kê</label>
+                                                    <input type="text" class="form-control" name="MaKiemKe" required />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Mã Sản Phẩm</label>
+                                                    <input type="text" class="form-control" name="MaSp" required />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Số Lượng Hệ Thống</label>
+                                                    <input type="number" class="form-control" name="SoLuongHeThong" required />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Số Lượng Thực Tế</label>
+                                                    <input type="number" class="form-control" name="SoLuongThucTe" required />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Lý Do</label>
+                                                    <input type="text" class="form-control" name="LyDo" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                            <button type="submit" class="btn btn-primary">Lưu</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Mã Kiểm Kê</th>
+                                        <th>Mã SP</th>
+                                        <th>SL Hệ Thống</th>
+                                        <th>SL Thực Tế</th>
+                                        <th>Chênh Lệch</th>
+                                        <th>Lý Do</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <form action="/Admin/ChiTietKemKe/CapNhatCTKK" method="post">
+                                            <td>
+                                                <input type="hidden" name="ID" value="@item.ID" />
+                                                <input class="form-control" name="MaKiemKe" value="@item.MaKiemKe" />
+                                            </td>
+                                            <td>
+                                                <input class="form-control" name="MaSp" value="@item.MaSp" />
+                                            </td>
+                                            <td>
+                                                <input class="form-control" name="SoLuongHeThong" type="number" value="@item.SoLuongHeThong" />
+                                            </td>
+                                            <td>
+                                                <input class="form-control" name="SoLuongThucTe" type="number" value="@item.SoLuongThucTe" />
+                                            </td>
+                                            <td>
+                                                <input class="form-control" value="@item.ChenhLech" readonly />
+                                            </td>
+                                            <td>
+                                                <input class="form-control" name="LyDo" value="@item.LyDo" />
+                                            </td>
+                                            <td>
+                                                <button type="submit" class="btn btn-success btn-sm">Cập nhật</button>
+                                                <a href="/Admin/ChiTietKiemKe/XoaCTKK?ID=@item.ID" class="btn btn-danger btn-sm">Xóa</a>
+                                            </td>
+                                            </form>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        © 2024 Quản lý kho hàng
+    </footer>
+</div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+}
+

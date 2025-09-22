@@ -1,0 +1,61 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model List<TeaShop.Models.TableModel.OrderDetail>
+@using TeaShop.Models.TableModel;
+
+<!-- Order List Section -->
+<section class="order-list-section">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-7 order-list-header text-center">
+                <h2>Đơn Hàng Của Bạn</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Group orders by MaDonHang -->
+            @{
+                var groupedOrders = Model.GroupBy(o => o.MaDonHang).ToList();
+            }
+            @foreach (var group in groupedOrders)
+            {
+                var firstOrder = group.First(); // Lấy thông tin chung của đơn hàng
+                <div class="col-md-12">
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <div>
+                                <span class="order-id">Mã Đơn: @firstOrder.MaDonHang</span>
+                                <span class="order-date ml-3">@firstOrder.NgayDat.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <span class="order-status status-completed">@firstOrder.TrangThai</span>
+                        </div>
+                        @foreach (var item in group)
+                        {
+                            <div class="order-item">
+                                <div class="order-item-info">
+                                    <div class="order-item-name">Sản phẩm: @item.MaSp</div>
+                                    <div class="order-item-meta">Số Lượng: @item.SoLuong</div>
+                                </div>
+                                <div class="order-item-price">@item.Gia.ToString("N0") VND</div>
+                            </div>
+                        }
+                        <div class="order-summary">
+                            <div class="order-summary-row">
+                                <span>Tổng số tiền:</span>
+                                <span>@firstOrder.TongTien.ToString("N0") VND</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-card-footer">
+                        <div>
+                            <span class="text-muted">Giao hàng vào: @firstOrder.NgayGiao.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        <a href="/DonHang/Detail?MaDonHang=@firstOrder.MaDonHang" class="btn-view-order">Chi Tiết Đơn Hàng</a>
+                    </div>
+                </div>
+            }
+        </div>      
+    </div>
+</section>
+<!-- End Order List Section -->

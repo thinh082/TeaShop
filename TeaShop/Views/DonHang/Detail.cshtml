@@ -1,0 +1,120 @@
+﻿@using System.Data
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    DataTable donHangTable = ViewBag.donhang as DataTable;
+    DataTable chiTietTable = ViewBag.chitiet as DataTable;
+    DataTable thanhToanTable = ViewBag.thanhtoan as DataTable;
+
+    var donHangRow = (donHangTable != null && donHangTable.Rows.Count > 0) ? donHangTable.Rows[0] : null;
+}
+<!-- Order Details Section -->
+<section class="order-details-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h1 class="order-title">Mã Đơn Hàng: @donHangRow?["MaDonHang"]</h1>
+                            <span class="order-status status-processing">@donHangRow?["TrangThai"] </span>
+                        </div>
+                        <p class="text-muted mb-0">Ngày Đặt : @((donHangRow?["NgayDat"] != DBNull.Value) ? Convert.ToDateTime(donHangRow["NgayDat"]).ToString("dd/MM/yyyy") : "")</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="order-info-item">
+                                <div class="order-info-label">Thông tin khách hàng</div>
+                                <div class="order-info-value">
+                                    @donHangRow?["HoTenKhachHang"]<br>
+                                    @donHangRow?["Email"]<br>
+                                    @donHangRow?["SoDienThoai"]
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="order-info-item">
+                                <div class="order-info-label">Shipping Address</div>
+                                <div class="order-info-value">
+                                    @donHangRow?["DiaChiKhachHang"]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-info-item">
+                        <div class="order-info-label">Phương Thức Thanh Toán</div>
+                        <div class="order-info-value">
+                            <div class="d-flex align-items-center">
+                                <span class="icon icon-credit-card mr-2"></span>
+                                @(thanhToanTable != null && thanhToanTable.Rows.Count > 0 ? thanhToanTable.Rows[0]["HinhThucThanhToan"] : "")
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="mt-4 mb-3">Order Items</h4>
+                    <table class="order-items-table">
+                        <thead>
+                            <tr>
+                                <th>Tên Sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Số Lượng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                if (chiTietTable != null && chiTietTable.Rows.Count > 0)
+                                {
+                                    foreach (DataRow row in chiTietTable.Rows)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="~/images/@row["Hinh"]" alt="Product" class="product-img mr-3">
+                                                    <div>
+                                                        <div>@row["TenSp"]</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@String.Format("{0:N0}", row["GiaBan"]) VND</td>
+                                            <td>@row["SoLuong"]</td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="order-total">
+                        <div class="row">
+                            <div class="col-md-8 offset-md-4">
+                                <div class="d-flex justify-content-between font-weight-bold" style="font-size: 20px;">
+                                    <span>Thanh toán:</span>
+                                    <span>@String.Format("{0:N0}", donHangRow?["TongTien"]) VND</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-actions">
+                        <button class="btn btn-print">
+                            <span class="icon icon-printer mr-2"></span>Print Invoice
+                        </button>
+                        <div>
+                            <button class="btn btn-back mr-2">
+                                <span class="icon icon-arrow-left mr-2"></span>Trở Lại
+                            </button>
+                            @* @if (Model.TrangThai == "Chờ xác nhận") *@
+                            @* { *@
+                            @*     <button class="btn btn-cancel"> *@
+                            @*         <span class="icon icon-close mr-2"></span>Hủy *@
+                            @*     </button> *@
+                            @* } *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Order Details Section -->
